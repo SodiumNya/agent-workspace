@@ -8,3 +8,6 @@ __pycache__/
 !.env.example
 
 .gitignore-backup/
+
+# Local repositories for source reading
+reading-repos/

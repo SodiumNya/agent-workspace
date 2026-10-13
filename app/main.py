@@ -27,9 +27,11 @@ def main():
     if result.status == RequestStatus.SUCCESS:
         print("\n========== 整理结果 ==========\n")
         print(result.content)
+    elif result.status == RequestStatus.FAILED:
+        print("请求失败：", result.error)
+        raise SystemExit(1)
     else:
-        print("\n似乎遇到了一点问题呢\n")
-        print(f"错误代码：{result.error_code}")
+        print("\n似乎遇到了一点问题呢, 执行状态未知\n")
         print(f"原因：{result.error}")
         raise SystemExit(1)
 
