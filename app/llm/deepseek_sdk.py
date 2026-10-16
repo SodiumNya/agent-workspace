@@ -1,14 +1,16 @@
-import os
 import logging
-from app.llm.base import LLMClient
-from app.llm.schemas import LLMResult, RequestStatus
+import os
+from collections.abc import Iterator
+
 from openai import (
-    OpenAI,
+    APIConnectionError,
     APIError,
     APIStatusError,
-    APIConnectionError,
     APITimeoutError,
-    )
+    OpenAI,
+)
+from app.llm.base import LLMClient
+from app.llm.schemas import LLMResult, RequestStatus
 
 class DeepSeekClient(LLMClient):
 
@@ -131,3 +133,47 @@ class DeepSeekClient(LLMClient):
                 status=RequestStatus.UNKNOWN,
                 error=f"SDK exception: {type(exc).__name__}",
             )
+
+    def generate_stream(self, prompt, system_prompt) -> Iterator[str]:
+        base_url = os.getenv("DSK_BASE_URL")
+        if base_url is None or base_url.strip() == "":
+            raise ValueError("base url is None or blank!")
+
+        with OpenAI(
+            api_key=self.api_key,
+            base_url=base_url,
+            timeout=120.0,
+            max_retries=1,
+        ) as client:
+            finish_reason = None
+            has_text = False
+            with client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                stream=True,
+                extra_body={"thinking": {"type": "disabled"}},
+            ) as stream:
+                for chunk in stream:
+                    if not chunk.choices:
+                        continue
+
+                    choice = chunk.choices[0]
+                    if choice.finish_reason is not None:
+                        finish_reason = choice.finish_reason
+
+                    text = choice.delta.content
+                    if text:
+                        if text.strip():
+                            has_text = True
+                        yield text
+            if finish_reason != "stop":
+                raise RuntimeError(
+                    f"LLM stream ended abnormally: {finish_reason}, has_text={has_text}"
+                )
+
+            if not has_text:
+                raise RuntimeError("LLM stream ended without yielding any text")
+

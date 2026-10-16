@@ -22,7 +22,7 @@ def setup_api(monkeypatch):
     model.generate.return_value = LLMResult(RequestStatus.SUCCESS, content=SUMMARY)
     factory = Mock(return_value=model)
     # 替换接口实际使用的工厂，避免调用真实模型。
-    monkeypatch.setattr(api, "craeate_llm_client", factory)
+    monkeypatch.setattr(api, "create_llm_client", factory)
     with TestClient(api.app) as client:
         yield client, factory, model
 

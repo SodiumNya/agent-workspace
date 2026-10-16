@@ -8,7 +8,7 @@ from app.llm.deepseek_sdk import DeepSeekClient
 
 load_dotenv()
 
-def craeate_llm_client(mode: str,) -> LLMClient:
+def create_llm_client(mode: str,) -> LLMClient:
 
     # api_key = os.environ["GEMINI_API_KEY"]
     # model = os.getenv("GEMINI_MODEL")
@@ -24,8 +24,9 @@ def craeate_llm_client(mode: str,) -> LLMClient:
     if mode == "sdk":
         # return GeminiSDKClient(api_key=api_key, model=model)
         return DeepSeekClient(api_key=api_key, model=model)
-    if mode == "http":
-        return GeminiHttpClient(api_key=api_key, model=model)
+    if mode == "http": 
+        raise ValueError("http mode is not supported yet!")
+        # return GeminiHttpClient(api_key=api_key, model=model)
 
     raise ValueError(f"Unsupported mode: {mode}")
 

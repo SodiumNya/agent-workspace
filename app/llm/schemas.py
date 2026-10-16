@@ -5,6 +5,7 @@ class RequestStatus(str, Enum):
     SUCCESS = "success"
     FAILED = "failed"
     UNKNOWN = "unknown"
+    STREAMING = "streaming"
 
 @dataclass
 class LLMResult:

@@ -1,5 +1,5 @@
 import argparse
-from app.llm.factory import craeate_llm_client
+from app.llm.factory import create_llm_client
 from app.prompts.meeting import build_user_prompt, SYSTEM_PROMPR
 from app.llm.schemas import RequestStatus
 
@@ -21,7 +21,7 @@ def main():
     # 构造prompt
     prompt = build_user_prompt(meeting_content)
     # 发送请求
-    llm_client = craeate_llm_client(mode="sdk")
+    llm_client = create_llm_client(mode="sdk")
     result = llm_client.generate(prompt=prompt, system_prompt=SYSTEM_PROMPR)
     # 显示结果
     if result.status == RequestStatus.SUCCESS:
